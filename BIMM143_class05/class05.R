@@ -2,6 +2,7 @@
 #' title: "Class 05 R graphics intro"
 #' author: "Jiaye Chen"
 #' date: "Jan 22nd, 2019"
+#' output: github_document
 #' ---
 
 #' This is some test and I can have **bold** and *Italic* and `code`
