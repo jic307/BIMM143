@@ -1,0 +1,80 @@
+---
+title: "class13"
+author: "Jiaye Chen"
+date: "February 19, 2019"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## In silico docking of drugs to HIV-1 protease
+
+### Prepare HIV-protease molecule for docking
+
+First get a PDB structure from the online database then clean it up for docking
+```{r}
+library(bio3d)
+hsg.file <- get.pdb("1hsg")
+hiv <- read.pdb(hsg.file)
+hiv
+```
+
+Read file into R ad clean it up (remove the non-protein bits) and also we will save the ligand in to a separate file
+```{r}
+hiv <- read.pdb(hsg.file)
+hiv
+```
+
+```{r}
+prot <- trim.pdb(hiv, "protein")
+lig <- trim.pdb(hiv, "ligand")
+```
+
+```{r}
+write.pdb(prot, file="1hsg_protein.pdb")
+write.pdb(lig, file="1hsg_ligand.pdb")
+hsg_protein <- read.pdb("1hsg_protein.pdb")
+hsg_ligand <- read.pdb("1hsg_ligand.pdb")
+show(hsg_protein)
+show(hsg_ligand)
+```
+
+```{r}
+
+```
+
+Q1: What is the name of the two non protein resid values in this structure? What does resid
+correspond to and how would you get a listing of all reside values in this structure? 
+```{r}
+# Ans: HOH (127), MK1 (1) 
+```
+
+### 2.3 Inspecting your docking results
+```{r}
+library(bio3d)
+res <- read.pdb("all.pdbqt", multi=TRUE)
+write.pdb(res, "results.pdb")
+```
+```{r}
+res <- read.pdb("all.pdbqt", multi=TRUE)
+ori <- read.pdb("ligand.pdbqt")
+rmsd(ori, res)
+```
+
+
+## Normal Mode Analysis
+```{r}
+pdb <- read.pdb("1HEL")
+
+m <- nma(pdb)
+```
+```{r}
+plot(m)
+```
+```{r}
+mktrj(m,mode = 7, file = "nma_7.pdb")
+```
+
+

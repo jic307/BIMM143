@@ -1,0 +1,80 @@
+---
+title: "Class11: Structural Bioinformatics"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Section 1. The PDB
+
+Q1: Download a CSV file from the PDB site (accessible from “Analyze” -> “PDB Statistics” > “by Experimental Method and Molecular Type”. Move this CSV file into your RStudio project and determine the percentage of structures solved by X-Ray and Electron Microscopy. From the website what proportion of structures are protein? Aim to have a rendered GitHub document with working code that yields your answers.
+```{r}
+stats <- read.csv("Data Export Summary.csv")
+show(stats)
+```
+
+```{r}
+percent.by.method <- stats$Total/sum(stats$Total)*100
+names(percent.by.method) <- stats$Experimental.Method
+percent.by.method
+
+```
+
+## BIO3D
+```{r}
+library(bio3d)
+example(plot.bio3d)
+```
+
+```{r}
+pdb <- read.pdb("1hsg.pdb")
+pdb
+```
+
+```{r}
+attributes(pdb)
+```
+
+```{r}
+head(pdb$atom)
+# Print a subset of $atom data for the first two atoms  
+pdb$atom[1:2, c("eleno", "elety", "x","y","z")]
+# Note that individual $atom records can also be accessed like this  
+pdb$atom$elety[1:2]
+# Which allows us to do the following  
+plot.bio3d(pdb$atom$b[pdb$calpha], sse=pdb, typ="l", ylab ="B-factor")
+```
+```{r}
+# Print a summary of the coordinate data in $xyz
+pdb$xyz
+
+```
+
+```{r}
+# Select all C-alpha atoms (return their indices)  
+ca.inds <- atom.select(pdb, "calpha") 
+ca.inds
+
+```
+
+## Write new PDB file
+we want to select out the protein and drug only parts of these molecular PDB files
+```{r}
+prot.inds <- atom.select(pdb,"protein")
+pdb$atom[prot.inds$atom]
+#write.pdb("1hsg.pdb","ProtOnly.pdb", )
+```
+```{r}
+prot.pdb <- trim.pdb(pdb, prot.inds)
+write.pdb(prot.pdb, file = "protein.pdb")
+```
+
+Lets do the same thing for our drug
+```{r}
+lig.inds <- atom.select(pdb,"ligand") 
+lig.pdb <- trim.pdb(pdb, lig.inds)
+write.pdb(lig.pdb, file = "ligand.pdb")
+```
+

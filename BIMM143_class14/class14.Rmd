@@ -1,0 +1,72 @@
+---
+title: "Untitled"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Asthma SNPs in MXL population
+
+Read file from ENSEMBOL
+```{r}
+mxl <- read.csv("373531-SampleGenotypes-Homo_sapiens_Variation_Sample_rs8067378.csv")
+head(mxl)
+```
+
+How many G|G genotype are in this set?
+```{r}
+table(mxl$Genotype..forward.strand.)
+```
+
+proportion of G|G in the mxl
+```{r}
+table(mxl$Genotype..forward.strand.)/ nrow(mxl)*100
+```
+## RNA-Seq
+
+Q. Does the first sequence have good quality
+
+```{r}
+q <- "DDDDCDEDCDDDDBBDDDCC@"
+library(seqinr)
+library(gtools)
+phred <- asc(s2c(q))-33
+phred
+
+```
+## Population scale analysis
+
+Does the genotype for rs9067378 influence expression of the important asthema linked gene we found?
+```{r}
+geno <- read.table("rs8067378_ENSG00000172057.6.txt")
+head(geno)
+```
+
+```{r}
+table(geno$geno)
+```
+```{r}
+inds <- geno$geno == "G/G"
+summary(geno$exp[inds])
+```
+```{r}
+inds.aa <- geno$geno == "A/A"
+summary(geno$exp[inds.aa])
+```
+
+```{r}
+inds.ag <- geno$geno == "A/G"
+summary(geno$exp[inds.ag])
+```
+
+Some nice figure that shows the distribution of these expression values?
+```{r}
+boxplot(exp~geno, geno)
+```
+```{r}
+library(ggplot2)
+
+```
+
