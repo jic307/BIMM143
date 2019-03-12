@@ -1,0 +1,54 @@
+---
+title: "project"
+author: "Jiaye Chen"
+date: "March 10, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```{r}
+library(bio3d)
+```
+```{r}
+MSA <- read.fasta("MSA_Find_A_Gene_Project.fst")
+MSA
+```
+```{r}
+id.matrix <- seqidentity(MSA)
+id.matrix
+```
+
+```{r}
+heatmap(id.matrix, margins = c(11,11))
+```
+```{r}
+con <- consensus(MSA)
+con
+```
+```{r}
+con_blast <- blast.pdb(con$seq)
+View(con_blast)
+```
+```{r}
+Ano_con <- pdb.annotate(con_blast$hit.tbl$pdb.id)
+View(Ano_con)
+```
+
+```{r}
+BLAST_RESULT <- blast.pdb(MSA)
+View(BLAST_RESULT)
+```
+```{r}
+show(BLAST_RESULT)
+```
+
+```{r}
+Ano <- pdb.annotate(BLAST_RESULT$hit.tbl$pdb.id)
+View(Ano)
+```
+
