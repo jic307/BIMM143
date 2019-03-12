@@ -63,7 +63,7 @@ ca.inds
 we want to select out the protein and drug only parts of these molecular PDB files
 ```{r}
 prot.inds <- atom.select(pdb,"protein")
-pdb$atom[prot.inds$atom]
+#pdb$atom[prot.inds$atom]
 #write.pdb("1hsg.pdb","ProtOnly.pdb", )
 ```
 ```{r}
