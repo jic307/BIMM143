@@ -1,0 +1,220 @@
+---
+title: "BIMM143_class08"
+author: "Jiaye Chen"
+date: "February 5, 2019"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## K-means clustering
+
+```{r}
+# Generate some example data for clustering
+tmp <- c(rnorm(30,-3), rnorm(30,3))
+x <- cbind(x=tmp, y=rev(tmp))
+plot(x)
+```
+
+###clustering
+####Use the kmeans() function setting k to 2 and nstart=20
+####Inspect/print the results
+####Q. How many points are in each cluster? 30
+####Q. What ‘component’ of your result object details
+####      - cluster size? 60
+####      - cluster assignment/membership?
+####      - cluster center?
+####Plot x colored by the kmeans cluster assignment and
+####      add cluster centers as blue points
+
+```{r}
+km <- kmeans(x, centers = 2, nstart = 20)
+```
+
+```{r}
+km$size
+```
+
+Cluster assignment/ membership and cluster centers
+
+```{r}
+plot(x, col=km$cluster)
+points(km$centers, col = "blue", pch =15, cex = 2)
+```
+```{r}
+km$totss
+```
+
+##Hierarchical clustering in R
+
+```{r}
+# First we need to calculate point (dis)similarity
+#   as the Euclidean distance between observations
+dist_matrix <- dist(x)
+# The hclust() function returns a hierarchical
+#  clustering model
+hc <- hclust(d = dist_matrix)
+# the print method is not so useful here
+hc
+
+```
+
+```{r}
+# Create hierarchical cluster model: hc
+hc2 <- hclust(dist(x))
+# We can plot the results as a dendrogram
+plot(hc2)
+```
+
+```{r}
+# Draws a dendrogram
+plot(hc2)
+abline(h=6, col="red") 
+cutree(hc2, h=6) # Cut by height h
+```
+
+```{r}
+# Using different hierarchical clustering methods
+d <- dist_matrix
+hc.complete <- hclust(d, method="complete")
+hc.average  <- hclust(d, method="average")
+hc.single   <- hclust(d, method="single")
+
+plot(hc.average)
+plot(hc.complete)
+plot(hc.single)
+```
+
+
+
+```{r}
+# Step 1. Generate some example data for clustering
+x <- rbind(
+  matrix(rnorm(100, mean=0, sd = 0.3), ncol = 2),   # c1
+  matrix(rnorm(100, mean = 1, sd = 0.3), ncol = 2), # c2
+  matrix(c(rnorm(50, mean = 1, sd = 0.3),           # c3
+           rnorm(50, mean = 0, sd = 0.3)), ncol = 2))
+colnames(x) <- c("x", "y")
+# Step 2. Plot the data without clustering
+plot(x)
+# Step 3. Generate colors for known clusters
+#         (just so we can compare to hclust results)
+col <- as.factor( rep(c("c1","c2","c3"), each=50) )
+plot(x, col=col)
+```
+#### Using dist()
+```{r}
+plot(dist(x))
+```
+#### Using hclust()
+```{r}
+hc3 <- hclust(dist(x))
+plot(hc3)
+abline(h=2, col="red") 
+abline(h=2.5, col = "blue")
+cutree(hc3, h=1) # Cut by height h
+```
+
+```{r}
+gp2 <- cutree(hc3, k=2)
+gp3 <- cutree(hc3, k=3)
+
+plot(x, col=gp2)
+plot(x, col=gp3)
+```
+
+```{r}
+plot(hclust(dist(x)))
+```
+
+## PCA
+```{r}
+## You can also download this file from the class website!
+mydata <- read.csv("https://tinyurl.com/expression-CSV",row.names=1)
+head(t(mydata))
+```
+
+```{r}
+## lets do PCA
+pca <- prcomp(t(mydata), scale=TRUE)
+## See what is returned by the prcomp() function
+attributes(pca)
+
+## A basic PC1 vs PC2 2-D plot
+plot(pca$x[,1], pca$x[,2])
+``` 
+
+```{r}
+## Variance captured per PC
+pca.var <- pca$sdev^2
+pca.var.per <- round(pca.var/sum(pca.var)*100, 1)
+pca.var.per
+```
+```{r}
+barplot(pca.var.per, main="Scree Plot",xlab="Principal Component", ylab="Percent Variation")
+```
+
+```{r}
+## A vector of colors for wt and ko samples
+colvec <- colnames(mydata)
+colvec[grep("wt", colvec)] <- "red"
+colvec[grep("ko", colvec)] <- "blue"
+plot(pca$x[,1], pca$x[,2], col=colvec, pch=16,
+xlab=paste0("PC1 (", pca.var.per[1], "%)"),
+ylab=paste0("PC2 (", pca.var.per[2], "%)"))
+```
+
+```{r}
+plot(pca$x[,1], pca$x[,2], col=colvec, pch=16,xlab=paste0("PC1 (", pca.var.per[1], "%)"),ylab=paste0("PC2 (", pca.var.per[2], "%)"))
+## Click to identify which sample is which
+identify(pca$x[,1], pca$x[,2], labels=colnames(mydata))
+```
+
+## Hands-on Section
+```{r}
+x <- read.csv("UK_foods.csv")
+
+## Number of columns and rows
+dim(x)
+
+## Preview the first 6 rows
+head(x)
+
+# Note how the minus indexing works
+rownames(x) <- x[,1]
+x <- x[,-1]
+head(x)
+dim(x)
+
+## Use the objects in the first column as row names
+x <- read.csv("UK_foods.csv", row.names=1)
+head(x)
+
+## ploting the data
+pairs(x, col=rainbow(10), pch=16)
+
+```
+
+## PCA to rescue
+
+```{r}
+# Use the prcomp() PCA function 
+pca <- prcomp(t(x))
+summary(pca)
+```
+
+```{r}
+# Plot PC1 vs PC2
+plot(pca$x[,1], pca$x[,2], xlab="PC1", ylab="PC2", xlim=c(-270,500))
+text(pca$x[,1], pca$x[,2], colnames(x), col = c("orange", "red", "blue", "darkgreen"))
+```
+
+
+```{r}
+## Lets focus on PC1 as it accounts for > 90% of variance 
+par(mar=c(10, 3, 0.35, 0))
+barplot( pca$rotation[,1], las=2 )
+```
+
